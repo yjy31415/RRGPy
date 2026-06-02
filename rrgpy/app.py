@@ -37,6 +37,8 @@ if "rrg_results" not in st.session_state:
     st.session_state.rrg_results = {}
 if "diffusion_results" not in st.session_state:
     st.session_state.diffusion_results = {}
+if "last_params" not in st.session_state:
+    st.session_state.last_params = {"window": 0, "tail": 0, "lookback": 0, "diffusion_ma": 0}
 
 
 # ── 侧边栏 ─────────────────────────────────────────────
@@ -139,10 +141,20 @@ if not selected_codes:
     st.stop()
 
 # ── 数据加载 ──────────────────────────────────────────
+last = st.session_state.last_params
+lookback_changed = (lookback != last["lookback"])
+
 data_needs_refresh = (
     st.session_state.benchmark_kline is None
     or len(st.session_state.sector_klines) == 0
+    or lookback_changed
 )
+
+if lookback_changed:
+    # 回看期变了 → 清掉旧 K 线缓存，重新拉
+    st.session_state.benchmark_kline = None
+    st.session_state.sector_klines = {}
+    st.session_state.constituents_data = {}
 
 if data_needs_refresh:
     progress = st.progress(0, text="正在加载基准数据...")
@@ -176,9 +188,17 @@ if data_needs_refresh:
     progress.empty()
 
 # ── 计算引擎 ──────────────────────────────────────────
+params_changed = (
+    window != last["window"]
+    or tail != last["tail"]
+    or diffusion_ma != last["diffusion_ma"]
+)
+
 needs_recalc = (
     not st.session_state.rrg_results
     or not st.session_state.diffusion_results
+    or params_changed
+    or lookback_changed
 )
 
 if needs_recalc:
@@ -206,6 +226,14 @@ if needs_recalc:
             result = compute_diffusion(cdata, ma_period=diffusion_ma)
             if result["dates"]:
                 st.session_state.diffusion_results[name] = result
+
+    # 记录当前参数，下次 rerun 时对比检测变化
+    st.session_state.last_params = {
+        "window": window,
+        "tail": tail,
+        "lookback": lookback,
+        "diffusion_ma": diffusion_ma,
+    }
 
 
 # ── 图表渲染 ──────────────────────────────────────────

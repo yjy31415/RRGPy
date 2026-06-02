@@ -4,7 +4,6 @@ from __future__ import annotations
 import time
 import pandas as pd
 import requests
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from rrgpy.config import (
     CLIST_URL, KLIN_URL, UA, REQUEST_TIMEOUT,
     RETRY_COUNT, RETRY_DELAY, BATCH_SIZE, LOOKBACK,
