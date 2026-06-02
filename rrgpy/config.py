@@ -35,3 +35,21 @@ CACHE_DIR = ".rrgpy_cache"
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
       "AppleWebKit/537.36 (KHTML, like Gecko) "
       "Chrome/117.0.0.0 Safari/537.36")
+
+import requests as _requests
+from functools import lru_cache
+
+
+@lru_cache(maxsize=1)
+def get_session() -> _requests.Session:
+    """返回一个配置了通用 UA + Referer 的持久化 requests Session。
+
+    全局单例，复用 Keep-Alive 连接。IPv6 已在 __init__.py 中禁用。
+    """
+    s = _requests.Session()
+    s.headers.update({
+        "User-Agent": UA,
+        "Referer": "https://quote.eastmoney.com/",
+        "Origin": "https://quote.eastmoney.com",
+    })
+    return s

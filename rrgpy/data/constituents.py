@@ -3,10 +3,9 @@ from __future__ import annotations
 
 import time
 import pandas as pd
-import requests
 from rrgpy.config import (
-    CLIST_URL, KLIN_URL, UA, REQUEST_TIMEOUT,
-    RETRY_COUNT, RETRY_DELAY, BATCH_SIZE, LOOKBACK,
+    CLIST_URL, KLIN_URL, REQUEST_TIMEOUT,
+    RETRY_COUNT, RETRY_DELAY, BATCH_SIZE, LOOKBACK, get_session,
 )
 
 
@@ -26,9 +25,7 @@ def fetch_constituent_list(sector_code: str) -> list[dict]:
         "fs": f"b:{sector_code}+t:2",
         "fields": "f2,f3,f12,f14,f85",
     }
-    headers = {"User-Agent": UA}
-    r = requests.get(CLIST_URL, params=params, headers=headers,
-                     timeout=REQUEST_TIMEOUT)
+    r = get_session().get(CLIST_URL, params=params, timeout=REQUEST_TIMEOUT)
     r.raise_for_status()
     data = r.json()
 
@@ -68,12 +65,11 @@ def _fetch_stock_kline(stock_code: str,
         "end": "20500101",
         "lmt": str(lookback),
     }
-    headers = {"User-Agent": UA}
 
     for attempt in range(RETRY_COUNT + 1):
         try:
-            r = requests.get(KLIN_URL, params=params, headers=headers,
-                             timeout=REQUEST_TIMEOUT)
+            r = get_session().get(KLIN_URL, params=params,
+                                  timeout=REQUEST_TIMEOUT)
             r.raise_for_status()
             d = r.json()
             break

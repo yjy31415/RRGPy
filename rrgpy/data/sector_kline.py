@@ -3,10 +3,9 @@ from __future__ import annotations
 
 import time
 import pandas as pd
-import requests
 from rrgpy.config import (
-    KLIN_URL, BENCHMARK_SECID, UA, REQUEST_TIMEOUT,
-    RETRY_COUNT, RETRY_DELAY, LOOKBACK,
+    KLIN_URL, BENCHMARK_SECID, REQUEST_TIMEOUT,
+    RETRY_COUNT, RETRY_DELAY, LOOKBACK, get_session,
 )
 
 
@@ -30,12 +29,11 @@ def _fetch_kline(secid: str, lookback: int = LOOKBACK) -> pd.DataFrame:
         "end": "20500101",
         "lmt": str(lookback),
     }
-    headers = {"User-Agent": UA}
 
     for attempt in range(RETRY_COUNT + 1):
         try:
-            r = requests.get(KLIN_URL, params=params, headers=headers,
-                             timeout=REQUEST_TIMEOUT)
+            r = get_session().get(KLIN_URL, params=params,
+                                  timeout=REQUEST_TIMEOUT)
             r.raise_for_status()
             d = r.json()
             break

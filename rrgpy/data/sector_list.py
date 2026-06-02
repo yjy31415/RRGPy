@@ -1,8 +1,7 @@
 """东财行业板块列表获取。"""
 from __future__ import annotations
 
-import requests
-from rrgpy.config import CLIST_URL, UA, REQUEST_TIMEOUT
+from rrgpy.config import CLIST_URL, REQUEST_TIMEOUT, get_session
 
 
 def fetch_sector_list() -> list[dict]:
@@ -21,9 +20,7 @@ def fetch_sector_list() -> list[dict]:
         "fs": "m:90+t:2",
         "fields": "f2,f3,f4,f12,f14,f104,f105,f128",
     }
-    headers = {"User-Agent": UA}
-    r = requests.get(CLIST_URL, params=params, headers=headers,
-                     timeout=REQUEST_TIMEOUT)
+    r = get_session().get(CLIST_URL, params=params, timeout=REQUEST_TIMEOUT)
     r.raise_for_status()
     data = r.json()
 
