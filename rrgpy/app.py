@@ -37,6 +37,8 @@ if "rrg_results" not in st.session_state:
     st.session_state.rrg_results = {}
 if "diffusion_results" not in st.session_state:
     st.session_state.diffusion_results = {}
+if "selected_sectors" not in st.session_state:
+    st.session_state.selected_sectors = []
 if "last_params" not in st.session_state:
     st.session_state.last_params = {"window": 0, "tail": 0, "lookback": 0, "diffusion_ma": 0}
 
@@ -95,9 +97,6 @@ with st.sidebar:
             st.session_state.selected_sectors = []
 
         # 板块多选
-        if "selected_sectors" not in st.session_state:
-            st.session_state.selected_sectors = []
-
         st.divider()
         st.caption(f"板块选择 ({len(st.session_state.selected_sectors)}/{len(sectors)} 已选)")
 
